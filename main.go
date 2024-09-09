@@ -32,6 +32,12 @@ func downloadCalender() (*gocal.Gocal, error) {
 }
 
 func running() {
+	closeAppButton := systray.AddMenuItem("Close App", "")
+	go func() {
+		<-closeAppButton.ClickedCh
+		systray.Quit()
+	}()
+	systray.AddSeparator()
 	currentBlock := systray.AddMenuItem("", "")
 	tLeftBlock := systray.AddMenuItem(TimeLeftBlockFormat, "")
 	tLeftDay := systray.AddMenuItem(TimeLeftDayFormat, "")
