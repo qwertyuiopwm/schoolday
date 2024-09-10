@@ -90,6 +90,13 @@ func running() {
 			timeLeftBlockString = fmt.Sprintf(TimeLeftBlockFormat, parsedDurationLeft.Format(OutputTimeLayout))
 		}
 		tLeftBlock.SetTitle(timeLeftBlockString)
+		if timeLeftBlockString == "" {
+			tLeftBlock.Hide()
+			tLeftDay.Hide()
+		} else {
+			tLeftBlock.Show()
+			tLeftDay.Show()
+		}
 
 		currentBlock.SetTitle(currentBlockString)
 
