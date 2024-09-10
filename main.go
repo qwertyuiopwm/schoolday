@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/apognu/gocal"
@@ -13,6 +14,8 @@ var calURI = "https://bhs.beltonschools.org/calendar/calendar_350.ics"
 var currentEvent *gocal.Event
 var TimeLayout = "03:04:05 PM"
 var OutputTimeLayout = "15:04:05"
+var BDayStart = "B Day"
+var ADayStart = "A Day"
 
 var TimeLeftBlockFormat = "Time left in block: %s"
 var TimeLeftDayFormat = "Time left in day: %s"
@@ -77,15 +80,17 @@ func running() {
 
 		currentBlock.SetTitle(currentBlockString)
 
-		endDayParsed, err := time.Parse(TimeLayout, currentTimes[len(currentTimes)-1][1])
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		if currentTimes != nil {
+			endDayParsed, err := time.Parse(TimeLayout, currentTimes[len(currentTimes)-1][1])
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 
-		durationLeftDay := endDayParsed.Sub(currentParsed)
-		parsedDurationLeft := time.Time{}.Add(durationLeftDay)
-		tLeftDay.SetTitle(fmt.Sprintf(TimeLeftDayFormat, parsedDurationLeft.Format(OutputTimeLayout)))
+			durationLeftDay := endDayParsed.Sub(currentParsed)
+			parsedDurationLeft := time.Time{}.Add(durationLeftDay)
+			tLeftDay.SetTitle(fmt.Sprintf(TimeLeftDayFormat, parsedDurationLeft.Format(OutputTimeLayout)))
+		}
 
 		time.Sleep(time.Second * 1)
 	}
@@ -108,11 +113,15 @@ func main() {
 		for i := len(events) - 1; i >= 0; i-- {
 			e := events[i]
 
-			if e.Start.Day() == time.Now().Day() {
-				currentEvent = &e
-
-				break
+			if e.Start.Day() != time.Now().Day() {
+				continue
 			}
+			if !strings.HasPrefix(e.Summary, ADayStart) && !strings.HasPrefix(e.Summary, BDayStart) {
+				continue
+			}
+
+			currentEvent = &e
+			break
 		}
 
 		if currentEvent == nil {
