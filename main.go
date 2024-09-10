@@ -96,6 +96,29 @@ func running() {
 	}
 }
 
+func setCurrentEvent(cal gocal.Gocal) (retry bool) {
+	events := cal.Events
+	currentEvent = nil
+	for i := len(events) - 1; i >= 0; i-- {
+		e := events[i]
+
+		if e.Start.Day() != time.Now().Day() {
+			continue
+		}
+		if strings.HasPrefix(e.Summary, ADayStart) || strings.HasPrefix(e.Summary, BDayStart) {
+			currentEvent = &e
+			break
+		}
+	}
+
+	if currentEvent == nil {
+		downloadCalender()
+		return true
+	}
+
+	return false
+}
+
 func end() {
 
 }
@@ -108,28 +131,18 @@ func main() {
 	}
 
 	go func() {
-		events := cal.Events
-		currentEvent = nil
-		for i := len(events) - 1; i >= 0; i-- {
-			e := events[i]
+		for {
+			if setCurrentEvent(*cal) {
+				cal, err = downloadCalender()
+				if err != nil {
+					fmt.Println(err)
+				}
 
-			if e.Start.Day() != time.Now().Day() {
-				continue
-			}
-			if !strings.HasPrefix(e.Summary, ADayStart) && !strings.HasPrefix(e.Summary, BDayStart) {
-				continue
+				return
 			}
 
-			currentEvent = &e
-			break
+			time.Sleep(time.Second * 1)
 		}
-
-		if currentEvent == nil {
-			downloadCalender()
-			return
-		}
-
-		time.Sleep(time.Second * 1)
 	}()
 
 	systray.Run(running, end)
