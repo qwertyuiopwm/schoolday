@@ -8,22 +8,18 @@ var NormalBlockTimes = [][]string{
 	{
 		"07:39:00 AM",
 		"09:15:00 AM",
-		"Block 1/5",
 	},
 	{
 		"09:20:00 AM",
 		"10:56:00 AM",
-		"Block 2/6",
 	},
 	{
 		"11:01:00 AM",
 		"01:04:00 PM",
-		"Block 3/7",
 	},
 	{
 		"01:09:00 PM",
 		"02:45:00 PM",
-		"Block 4/8",
 	},
 }
 
@@ -82,8 +78,18 @@ var Times = map[string][][]string{
 			"Block 4/8",
 		},
 	},
-	"1-4)": NormalBlockTimes,
-	"5-8)": NormalBlockTimes,
+	"1-4)": {
+		append(NormalBlockTimes[0], "Block 1"),
+		append(NormalBlockTimes[1], "Block 2"),
+		append(NormalBlockTimes[2], "Block 3"),
+		append(NormalBlockTimes[3], "Block 4"),
+	},
+	"5-8)": {
+		append(NormalBlockTimes[0], "Block 5"),
+		append(NormalBlockTimes[1], "Block 6"),
+		append(NormalBlockTimes[2], "Block 7"),
+		append(NormalBlockTimes[3], "Block 8"),
+	},
 }
 
 func getTimesFromSummary(str string) [][]string {
