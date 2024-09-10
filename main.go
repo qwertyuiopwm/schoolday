@@ -18,6 +18,7 @@ var BDayStart = "B Day"
 var ADayStart = "A Day"
 
 var TimeLeftBlockFormat = "Time left in block: %s"
+var TimeLeftUntilStart = "Time left until class starts: %s"
 var TimeLeftDayFormat = "Time left in day: %s"
 
 func downloadCalender() (*gocal.Gocal, error) {
@@ -60,6 +61,8 @@ func running() {
 
 		currentTimes := getTimesFromSummary(currentEvent.Summary)
 		currentBlockString := "No Block / Passing Period"
+		timeLeftBlockString := ""
+
 		for _, times := range currentTimes {
 			startParsed, err := time.Parse(TimeLayout, times[0])
 			if err != nil {
@@ -71,6 +74,11 @@ func running() {
 				fmt.Println(err)
 				return
 			}
+			if currentParsed.Before(startParsed) && !currentParsed.After(endParsed) {
+				durationLeft := startParsed.Sub(currentParsed)
+				parsedDurationLeft := time.Time{}.Add(durationLeft)
+				timeLeftBlockString = fmt.Sprintf(TimeLeftUntilStart, parsedDurationLeft.Format(OutputTimeLayout))
+			}
 			if currentParsed.Before(startParsed) || currentParsed.After(endParsed) {
 				continue
 			}
@@ -79,8 +87,9 @@ func running() {
 
 			durationLeft := endParsed.Sub(currentParsed)
 			parsedDurationLeft := time.Time{}.Add(durationLeft)
-			tLeftBlock.SetTitle(fmt.Sprintf(TimeLeftBlockFormat, parsedDurationLeft.Format(OutputTimeLayout)))
+			timeLeftBlockString = fmt.Sprintf(TimeLeftBlockFormat, parsedDurationLeft.Format(OutputTimeLayout))
 		}
+		tLeftBlock.SetTitle(timeLeftBlockString)
 
 		currentBlock.SetTitle(currentBlockString)
 
