@@ -46,6 +46,10 @@ func running() {
 	tLeftDay := systray.AddMenuItem(TimeLeftDayFormat, "")
 
 	for {
+		if currentEvent == nil {
+			continue
+		}
+
 		currentDateTimeString := time.Now().Format(TimeLayout)
 		currentParsed, err := time.Parse(TimeLayout, currentDateTimeString)
 		if err != nil {
@@ -84,7 +88,7 @@ func running() {
 			endDayParsed, err := time.Parse(TimeLayout, currentTimes[len(currentTimes)-1][1])
 			if err != nil {
 				fmt.Println(err)
-				return
+				continue
 			}
 
 			durationLeftDay := endDayParsed.Sub(currentParsed)
