@@ -74,7 +74,7 @@ func running() {
 				fmt.Println(err)
 				return
 			}
-			if currentParsed.Before(startParsed) && !currentParsed.After(endParsed) {
+			if timeLeftBlockString == "" && currentParsed.Before(startParsed) {
 				durationLeft := startParsed.Sub(currentParsed)
 				parsedDurationLeft := time.Time{}.Add(durationLeft)
 				timeLeftBlockString = fmt.Sprintf(TimeLeftUntilStart, parsedDurationLeft.Format(OutputTimeLayout))
