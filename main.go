@@ -10,7 +10,7 @@ import (
 	"github.com/getlantern/systray"
 )
 
-var calURI = "https://bhs.beltonschools.org/calendar/calendar_350.ics"
+var calURI = "https://bhs.beltonschools.org/calendar/calendar_350_gmt.ics"
 var currentEvent *gocal.Event
 var TimeLayout = "03:04:05 PM"
 var OutputTimeLayout = "15:04:05"
@@ -122,10 +122,12 @@ func setCurrentEvent(cal gocal.Gocal) (retry bool) {
 	for i := len(events) - 1; i >= 0; i-- {
 		e := events[i]
 
-		if e.Start.Day() != time.Now().Day() {
+		if e.Start.Day() != time.Now().Day() || e.End.Month() != time.Now().Month() {
 			continue
 		}
 		if strings.HasPrefix(e.Summary, ADayStart) || strings.HasPrefix(e.Summary, BDayStart) {
+			fmt.Println(e.Start.Day(), time.Now().Day())
+			fmt.Println(e)
 			currentEvent = &e
 			break
 		}
