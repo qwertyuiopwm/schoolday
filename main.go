@@ -126,8 +126,6 @@ func setCurrentEvent(cal gocal.Gocal) (retry bool) {
 			continue
 		}
 		if strings.HasPrefix(e.Summary, ADayStart) || strings.HasPrefix(e.Summary, BDayStart) {
-			fmt.Println(e.Start.Day(), time.Now().Day())
-			fmt.Println(e)
 			currentEvent = &e
 			break
 		}
