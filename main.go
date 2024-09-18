@@ -83,11 +83,13 @@ func running() {
 				continue
 			}
 
-			currentBlockString = fmt.Sprintf("Current Block: %s", times[2])
+			if len(times) > 2 {
+				currentBlockString = fmt.Sprintf("Current Block: %s", times[2])
 
-			durationLeft := endParsed.Sub(currentParsed)
-			parsedDurationLeft := time.Time{}.Add(durationLeft)
-			timeLeftBlockString = fmt.Sprintf(TimeLeftBlockFormat, parsedDurationLeft.Format(OutputTimeLayout))
+				durationLeft := endParsed.Sub(currentParsed)
+				parsedDurationLeft := time.Time{}.Add(durationLeft)
+				timeLeftBlockString = fmt.Sprintf(TimeLeftBlockFormat, parsedDurationLeft.Format(OutputTimeLayout))
+			}
 		}
 		tLeftBlock.SetTitle(timeLeftBlockString)
 		if timeLeftBlockString == "" {

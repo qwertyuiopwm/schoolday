@@ -79,8 +79,8 @@ var Times = map[string][][]string{
 	"1-4) w/ Anchor": {
 		append(AnchorTimes[0], "Block 1"),
 		append(AnchorTimes[1], "Block 2"),
-		AnchorTimes[2],
-		append(AnchorTimes[3], "Block 3"),
+		append(AnchorTimes[2], "Block 3"),
+		AnchorTimes[3],
 		append(AnchorTimes[4], "Block 4"),
 	},
 	"1-4) w/ Assembly": {
@@ -99,8 +99,8 @@ var Times = map[string][][]string{
 	"5-8) w/ Anchor": {
 		append(AnchorTimes[0], "Block 5"),
 		append(AnchorTimes[1], "Block 6"),
-		AnchorTimes[2],
-		append(AnchorTimes[3], "Block 7"),
+		append(AnchorTimes[2], "Block 7"),
+		AnchorTimes[3],
 		append(AnchorTimes[4], "Block 8"),
 	},
 	"5-8) w/ Assembly": {
