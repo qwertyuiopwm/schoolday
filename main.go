@@ -1,4 +1,4 @@
-package schoolday
+package main
 
 import (
 	"fmt"
@@ -158,7 +158,7 @@ func end() {
 
 }
 
-func Main() {
+func main() {
 	cal, err := downloadCalender()
 	if err != nil {
 		fmt.Println(err)

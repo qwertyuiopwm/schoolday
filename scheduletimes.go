@@ -1,4 +1,4 @@
-package schoolday
+package main
 
 import (
 	"strings"
