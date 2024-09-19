@@ -48,6 +48,10 @@ func running() {
 
 	for {
 		if currentEvent == nil {
+			systray.SetTitle("No class today!")
+			currentBlock.Hide()
+			tLeftBlock.Hide()
+			tLeftDay.Hide()
 			continue
 		}
 
@@ -96,6 +100,7 @@ func running() {
 			tLeftBlock.Hide()
 			tLeftDay.Hide()
 		} else {
+			currentBlock.Show()
 			tLeftBlock.Show()
 			tLeftDay.Show()
 		}
@@ -128,7 +133,7 @@ func setCurrentEvent(cal gocal.Gocal) (retry bool) {
 			continue
 		}
 		if strings.HasPrefix(e.Summary, ADayStart) || strings.HasPrefix(e.Summary, BDayStart) {
-			currentEvent = &e
+			//currentEvent = &e
 			break
 		}
 	}
@@ -154,16 +159,18 @@ func main() {
 
 	go func() {
 		for {
-			if setCurrentEvent(*cal) {
-				cal, err = downloadCalender()
-				if err != nil {
-					fmt.Println(err)
-				}
+			shouldRetry := setCurrentEvent(*cal)
 
-				return
+			if !shouldRetry {
+				time.Sleep(time.Second * 1)
+				continue
 			}
 
-			time.Sleep(time.Second * 1)
+			cal, err = downloadCalender()
+			if err != nil {
+				fmt.Println(err)
+			}
+			continue
 		}
 	}()
 
