@@ -1,4 +1,4 @@
-package main
+package schoolday
 
 import (
 	"fmt"
@@ -21,6 +21,7 @@ var TimeLeftBlockFormat = "Time left in block: %s"
 var TimeLeftUntilStart = "Time left until class starts: %s"
 var TimeLeftDayFormat = "Time left in day: %s"
 
+// Downloads the BHS calendar and returns a parsed gocal object.
 func downloadCalender() (*gocal.Gocal, error) {
 	res, err := http.Get(calURI)
 	if err != nil {
@@ -35,6 +36,7 @@ func downloadCalender() (*gocal.Gocal, error) {
 	return c, nil
 }
 
+// systray main loop function.
 func running() {
 	closeAppButton := systray.AddMenuItem("Close App", "")
 	go func() {
@@ -47,12 +49,17 @@ func running() {
 	tLeftDay := systray.AddMenuItem(TimeLeftDayFormat, "")
 
 	for {
-		if currentEvent == nil {
-			systray.SetTitle("No class today!")
+		var title = "No class today!"
+		var currentBlockString = "No Block / Passing Period"
+		var timeLeftBlockString = ""
+		var timeLeftDayString = ""
+
+		var currentEventFrame = currentEvent
+
+		if currentEventFrame == nil {
 			currentBlock.Hide()
 			tLeftBlock.Hide()
 			tLeftDay.Hide()
-			continue
 		}
 
 		currentDateTimeString := time.Now().Format(TimeLayout)
@@ -61,41 +68,54 @@ func running() {
 			fmt.Println(err)
 		}
 
-		systray.SetTitle(currentEvent.Summary)
+		if currentEventFrame != nil {
+			title = currentEventFrame.Summary
 
-		currentTimes := getTimesFromSummary(currentEvent.Summary)
-		currentBlockString := "No Block / Passing Period"
-		timeLeftBlockString := ""
+			currentTimes := getTimesFromSummary(currentEventFrame.Summary)
 
-		for _, times := range currentTimes {
-			startParsed, err := time.Parse(TimeLayout, times[0])
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			endParsed, err := time.Parse(TimeLayout, times[1])
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			if timeLeftBlockString == "" && currentParsed.Before(startParsed) {
-				durationLeft := startParsed.Sub(currentParsed)
-				parsedDurationLeft := time.Time{}.Add(durationLeft)
-				timeLeftBlockString = fmt.Sprintf(TimeLeftUntilStart, parsedDurationLeft.Format(OutputTimeLayout))
-			}
-			if currentParsed.Before(startParsed) || currentParsed.After(endParsed) {
-				continue
+			for _, times := range currentTimes {
+				startParsed, err := time.Parse(TimeLayout, times[0])
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				endParsed, err := time.Parse(TimeLayout, times[1])
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				if timeLeftBlockString == "" && currentParsed.Before(startParsed) {
+					durationLeft := startParsed.Sub(currentParsed)
+					parsedDurationLeft := time.Time{}.Add(durationLeft)
+					timeLeftBlockString = fmt.Sprintf(TimeLeftUntilStart, parsedDurationLeft.Format(OutputTimeLayout))
+				}
+				if currentParsed.Before(startParsed) || currentParsed.After(endParsed) {
+					continue
+				}
+
+				if len(times) > 2 {
+					currentBlockString = fmt.Sprintf("Current Block: %s", times[2])
+
+					durationLeft := endParsed.Sub(currentParsed)
+					parsedDurationLeft := time.Time{}.Add(durationLeft)
+					timeLeftBlockString = fmt.Sprintf(TimeLeftBlockFormat, parsedDurationLeft.Format(OutputTimeLayout))
+				}
 			}
 
-			if len(times) > 2 {
-				currentBlockString = fmt.Sprintf("Current Block: %s", times[2])
+			if currentTimes != nil {
+				endDayParsed, err := time.Parse(TimeLayout, currentTimes[len(currentTimes)-1][1])
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
 
-				durationLeft := endParsed.Sub(currentParsed)
-				parsedDurationLeft := time.Time{}.Add(durationLeft)
-				timeLeftBlockString = fmt.Sprintf(TimeLeftBlockFormat, parsedDurationLeft.Format(OutputTimeLayout))
+				durationLeftDay := endDayParsed.Sub(currentParsed)
+				parsedDurationLeft := time.Time{}.Add(durationLeftDay)
+				timeLeftDayString = fmt.Sprintf(TimeLeftDayFormat, parsedDurationLeft.Format(OutputTimeLayout))
 			}
 		}
-		tLeftBlock.SetTitle(timeLeftBlockString)
+
+		// Hide items accordingly.
 		if timeLeftBlockString == "" {
 			tLeftBlock.Hide()
 			tLeftDay.Hide()
@@ -105,24 +125,17 @@ func running() {
 			tLeftDay.Show()
 		}
 
+		// Set titles for each item.
+		systray.SetTitle(title)
 		currentBlock.SetTitle(currentBlockString)
-
-		if currentTimes != nil {
-			endDayParsed, err := time.Parse(TimeLayout, currentTimes[len(currentTimes)-1][1])
-			if err != nil {
-				fmt.Println(err)
-				continue
-			}
-
-			durationLeftDay := endDayParsed.Sub(currentParsed)
-			parsedDurationLeft := time.Time{}.Add(durationLeftDay)
-			tLeftDay.SetTitle(fmt.Sprintf(TimeLeftDayFormat, parsedDurationLeft.Format(OutputTimeLayout)))
-		}
+		tLeftBlock.SetTitle(timeLeftBlockString)
+		tLeftDay.SetTitle(timeLeftDayString)
 
 		time.Sleep(time.Second * 1)
 	}
 }
 
+// Set the current event by iterating over calendar events and checking if the current day is the same as the event day.
 func setCurrentEvent(cal gocal.Gocal) (retry bool) {
 	events := cal.Events
 	currentEvent = nil
@@ -138,19 +151,14 @@ func setCurrentEvent(cal gocal.Gocal) (retry bool) {
 		}
 	}
 
-	if currentEvent == nil {
-		downloadCalender()
-		return true
-	}
-
-	return false
+	return currentEvent == nil
 }
 
 func end() {
 
 }
 
-func main() {
+func Main() {
 	cal, err := downloadCalender()
 	if err != nil {
 		fmt.Println(err)
@@ -162,6 +170,7 @@ func main() {
 			shouldRetry := setCurrentEvent(*cal)
 
 			if !shouldRetry {
+				cal, _ = downloadCalender()
 				time.Sleep(time.Second * 1)
 				continue
 			}

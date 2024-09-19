@@ -1,4 +1,4 @@
-package main
+package schoolday
 
 import (
 	"strings"
@@ -68,6 +68,48 @@ var AssemblyTimes = [][]string{
 		"Assembly",
 	},
 }
+var AllBlocksTimes = [][]string{
+	{
+		"07:39:00 AM",
+		"08:18:00 AM",
+		"Block 5",
+	},
+	{
+		"08:23:00 AM",
+		"09:02:00 AM",
+		"Block 1",
+	},
+	{
+		"09:07:00 AM",
+		"09:45:00 AM",
+		"Block 2",
+	},
+	{
+		"09:50:00 AM",
+		"10:28:00 AM",
+		"Block 6",
+	},
+	{
+		"10:33:00 AM",
+		"12:23:00 PM",
+		"Block 3",
+	},
+	{
+		"12:28:00 PM",
+		"01:10:00 PM",
+		"Block 7",
+	},
+	{
+		"01:15:00 PM",
+		"01:57:00 PM",
+		"Block 8",
+	},
+	{
+		"02:02:00 PM",
+		"02:45:00 PM",
+		"Block 4",
+	},
+}
 
 var Times = map[string][][]string{
 	"1-4)": {
@@ -110,6 +152,7 @@ var Times = map[string][][]string{
 		append(AssemblyTimes[3], "Block 8"),
 		AssemblyTimes[4],
 	},
+	"8 BLOCK DAY": AllBlocksTimes,
 }
 
 func getTimesFromSummary(str string) [][]string {
