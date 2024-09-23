@@ -162,22 +162,21 @@ func main() {
 	cal, err := downloadCalender()
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
 
 	go func() {
 		for {
+			if cal == nil {
+				cal, _ = downloadCalender()
+
+				continue
+			}
 			shouldRetry := setCurrentEvent(*cal)
 
 			if !shouldRetry {
-				cal, _ = downloadCalender()
 				time.Sleep(time.Second * 1)
+				cal = nil
 				continue
-			}
-
-			cal, err = downloadCalender()
-			if err != nil {
-				fmt.Println(err)
 			}
 			continue
 		}
