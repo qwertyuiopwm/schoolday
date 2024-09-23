@@ -138,7 +138,7 @@ func running() {
 // Set the current event by iterating over calendar events and checking if the current day is the same as the event day.
 func setCurrentEvent(cal gocal.Gocal) (retry bool) {
 	events := cal.Events
-	currentEvent = nil
+	var newEvent *gocal.Event
 	for i := len(events) - 1; i >= 0; i-- {
 		e := events[i]
 
@@ -146,11 +146,12 @@ func setCurrentEvent(cal gocal.Gocal) (retry bool) {
 			continue
 		}
 		if strings.HasPrefix(e.Summary, ADayStart) || strings.HasPrefix(e.Summary, BDayStart) {
-			currentEvent = &e
+			newEvent = &e
 			break
 		}
 	}
 
+	currentEvent = newEvent
 	return currentEvent == nil
 }
 
@@ -168,16 +169,15 @@ func main() {
 		for {
 			if cal == nil {
 				cal, _ = downloadCalender()
-
 				continue
 			}
 			shouldRetry := setCurrentEvent(*cal)
 
-			if !shouldRetry {
-				time.Sleep(time.Second * 1)
+			if shouldRetry {
 				cal = nil
-				continue
+				time.Sleep(time.Second * 1)
 			}
+
 			continue
 		}
 	}()
