@@ -142,9 +142,10 @@ func setCurrentEvent(cal gocal.Gocal) (retry bool) {
 	for i := len(events) - 1; i >= 0; i-- {
 		e := events[i]
 
-		if e.Start.Day() != time.Now().Day() || e.End.Month() != time.Now().Month() {
+		if e.Start.Day() != time.Now().Day() || e.Start.Month() != time.Now().Month() {
 			continue
 		}
+		
 		if strings.HasPrefix(e.Summary, ADayStart) || strings.HasPrefix(e.Summary, BDayStart) {
 			newEvent = &e
 			break
@@ -160,6 +161,7 @@ func end() {
 }
 
 func main() {
+	var cal *gocal.Gocal
 	cal, err := downloadCalender()
 	if err != nil {
 		fmt.Println(err)
@@ -168,7 +170,9 @@ func main() {
 	go func() {
 		for {
 			if cal == nil {
-				cal, _ = downloadCalender()
+				fmt.Println("No calender found")
+				newCal, _ := downloadCalender()
+				cal = newCal
 				continue
 			}
 			shouldRetry := setCurrentEvent(*cal)
