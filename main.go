@@ -145,7 +145,7 @@ func setCurrentEvent(cal gocal.Gocal) (retry bool) {
 		if e.Start.Day() != time.Now().Day() || e.Start.Month() != time.Now().Month() {
 			continue
 		}
-		
+
 		if strings.HasPrefix(e.Summary, ADayStart) || strings.HasPrefix(e.Summary, BDayStart) {
 			newEvent = &e
 			break
@@ -179,10 +179,10 @@ func main() {
 
 			if shouldRetry {
 				cal = nil
-				time.Sleep(time.Second * 1)
+				continue
 			}
 
-			continue
+			time.Sleep(time.Second * 1)
 		}
 	}()
 
